@@ -47,13 +47,16 @@
             </h1>
             <textarea placeholder="Describe your code snippet here..."
                 class="w-full p-2 border border-gray-300 rounded mb-4" rows="3"></textarea>
-            <button class="w-full bg-green-500 text-white px-4 py-2 rounded mb-4">
+            <button id="generate-code-btn" class="w-full bg-green-500 text-white px-4 py-2 rounded mb-4">
                 Generate Code
             </button>
 
             <!-- Simple Code Highlighter Placeholder for Python -->
-            <pre class="mb-2"><code class="python">def is_even(n):
-    return n % 2</code></pre>
+            <textarea id="code-input" placeholder="generated code will apear here"
+    class="w-full p-2 border border-gray-300 rounded mb-2 python" rows="3">def is_even(n):
+        return n % 2</code></textarea>
+            <!-- <pre class="mb-2"><code class="python">def is_even(n):
+    return n % 2</code></pre> -->
             <div class="flex justify-between mb-4">
                 <input type="text" placeholder="Provide feedback for regenerating code..."
                     class="flex-grow mr-2 p-2 border border-gray-300 rounded">
@@ -94,6 +97,24 @@ assert is_even(3) == False</code></pre>
     <!-- Include Highlight.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
+
+    <script>
+        document.getElementById('generate-code-btn').addEventListener('click', async () => {
+            let inputText = document.getElementById('code-input').value; // Get code from textarea
+            let formData = new FormData();
+            formData.append('input_text', inputText);
+        
+            const response = await fetch('/generatecode/', {
+                method: 'POST',
+                body: formData,
+            });
+        
+            const result = await response.json();
+            document.getElementById('code-input').value = result.result; // Update the textarea with the processed response
+        });
+        </script>
+
+
 </body>
 
 </html>

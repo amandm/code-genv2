@@ -12,8 +12,12 @@
 # print(response)
 
 import cohere
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-co = cohere.Client('ypwZZfVBrmiTXi5hZeFX6tbRaS68BkCzMCeEm6ax')
+api = os.environ.get("COHERE_API_KEY")
+co = cohere.Client(api)
 
 for event in co.chat_stream(message="write a small poem about python."):
     if event.event_type == "text-generation":
