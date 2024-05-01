@@ -47,18 +47,16 @@
             </h1>
             <textarea placeholder="Describe your code snippet here..."
                 class="w-full p-2 border border-gray-300 rounded mb-4" rows="3"></textarea>
-            <button class="w-full bg-green-500 text-white px-4 py-2 rounded mb-4">
+            <button id="generate-code-btn" class="w-full bg-green-500 text-white px-4 py-2 rounded mb-4">
                 Generate Code
             </button>
-            <div id="responseArea" class="p-4 bg-gray-100 text-gray-800 rounded">
-                <pre class="mb-2"><code class="python">def is_even(n):
-                return n % 2 == 0</code></pre>
-            </div>
-            <!-- <div id="responseArea" class="p-4 bg-gray-100 text-gray-800 rounded"></div> -->
+
             <!-- Simple Code Highlighter Placeholder for Python -->
-            <!-- <pre class="mb-2"><code class="python">def is_even(n): -->
-    <!-- return n % 2</code></pre> -->
-            
+            <textarea id="code-input" placeholder="generated code will apear here"
+    class="w-full p-2 border border-gray-300 rounded mb-2 python" rows="3">def is_even(n):
+        return n % 2</code></textarea>
+            <!-- <pre class="mb-2"><code class="python">def is_even(n):
+    return n % 2</code></pre> -->
             <div class="flex justify-between mb-4">
                 <input type="text" placeholder="Provide feedback for regenerating code..."
                     class="flex-grow mr-2 p-2 border border-gray-300 rounded">
@@ -101,31 +99,22 @@ assert is_even(3) == False</code></pre>
     <script>hljs.highlightAll();</script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const generateButton = document.querySelector('.bg-green-500'); // This selects the Generate Code button
-            const responseArea = document.getElementById('responseArea');
-            const inputArea = document.querySelector('textarea');
+        document.getElementById('generate-code-btn').addEventListener('click', async () => {
+            let inputText = document.getElementById('code-input').value; // Get code from textarea
+            let formData = new FormData();
+            formData.append('input_text', inputText);
         
-            generateButton.addEventListener('click', function() {
-                const inputText = inputArea.value;
-                fetch('http://localhost:8000/generatecode/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `input_text=${encodeURIComponent(inputText)}`
-                })
-                .then(response => response.text())  // Use .text() as the response is now HTML
-                .then(html => {
-                    responseArea.innerHTML = html;  // Inject the HTML into the response area
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    responseArea.innerHTML = `<pre class="mb-2"><code>Error: Failed to generate code.</code></pre>`;
-                });
+            const response = await fetch('/generatecode/', {
+                method: 'POST',
+                body: formData,
             });
+        
+            const result = await response.json();
+            document.getElementById('code-input').value = result.result; // Update the textarea with the processed response
         });
-    </script>    
+        </script>
+
+
 </body>
 
 </html>
