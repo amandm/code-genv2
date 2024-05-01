@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+test-cohere.py
+fastapi-streaming.py
+
+
 # C extensions
 *.so
 
