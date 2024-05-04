@@ -6,9 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
-    <title>
-        Code Snippet Generator
-    </title>
+    <title>Code Snippet Generator</title>
+    <style>
+        #responseArea {
+            min-height: 100px; /* Minimum height */
+            max-height: 400px; /* Maximum height before scrolling */
+            overflow: auto; /* Enables scrolling when content exceeds the max-height */
+            background-color: #f4f4f4; /* Light grey background */
+            padding: 10px; /* Padding inside the response area */
+            border-radius: 5px; /* Rounded corners */
+            border: 1px solid #ccc; /* Light grey border */
+        }
+    </style>
 </head>
 
 <body>
@@ -23,7 +32,6 @@
             </button>
             <ul>
                 <li class="flex justify-between mb-4">
-                    <!-- Dark & no delete button because it is selected -->
                     <a class="w-full block p-2 bg-gray-500 rounded text-white" href="#">
                         Even Tester | Python
                     </a>
@@ -32,7 +40,6 @@
                     <a class="w-full block p-2 bg-gray-300 rounded" href="#">
                         Prime number generator | Javascript
                     </a>
-                    <!-- Delete icon -->
                     <button class="bg-red-500 text-white px-2 py-1 rounded">
                         Delete
                     </button>
@@ -50,15 +57,9 @@
             <button class="w-full bg-green-500 text-white px-4 py-2 rounded mb-4">
                 Generate Code
             </button>
-            <div id="responseArea" class="p-4 bg-gray-100 text-gray-800 rounded">
-                <pre class="mb-2"><code class="python">def is_even(n):
-                return n % 2 == 0</code></pre>
+            <div id="responseArea">
+                <!-- Content generated will appear here with automatic resizing and scrolling -->
             </div>
-            <!-- <div id="responseArea" class="p-4 bg-gray-100 text-gray-800 rounded"></div> -->
-            <!-- Simple Code Highlighter Placeholder for Python -->
-            <!-- <pre class="mb-2"><code class="python">def is_even(n): -->
-    <!-- return n % 2</code></pre> -->
-            
             <div class="flex justify-between mb-4">
                 <input type="text" placeholder="Provide feedback for regenerating code..."
                     class="flex-grow mr-2 p-2 border border-gray-300 rounded">
@@ -70,10 +71,8 @@
                 Generate Test Cases
             </button>
 
-            <!-- Fancy HR -->
             <hr class="mb-4 border-t-2 border-gray-300">
 
-            <!-- Simple Code Highlighter Placeholder for Test Cases -->
             <pre class="mb-2"><code class="python">assert is_even(8) == True
 assert is_even(3) == False</code></pre>
 
@@ -102,26 +101,46 @@ assert is_even(3) == False</code></pre>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const generateButton = document.querySelector('.bg-green-500'); // This selects the Generate Code button
-            const responseArea = document.getElementById('responseArea');
-            const inputArea = document.querySelector('textarea');
+        const generateButton = document.querySelector('.bg-green-500'); // This selects the Generate Code button
+        const responseArea = document.getElementById('responseArea');
+        const inputArea = document.querySelector('textarea');
+
+        generateButton.addEventListener('click', function() {
+            const inputText = inputArea.value;
+            fetch('http://localhost:8000/generatecode/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `input_text=${encodeURIComponent(inputText)}`
+            })
+            .then(response => response.text())  // Use .text() as the response is now HTML
+            .then(html => {
+                responseArea.innerHTML = html;  // Inject the HTML into the response area
+                hljs.highlightAll(); // Reapply syntax highlighting to the new code
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                responseArea.innerHTML = `<pre class="mb-2"><code>Error: Failed to generate code.</code></pre>`;
+            });
+        }); 
+    });
+        document.addEventListener('DOMContentLoaded', function() {
+            const testCasesButton = document.querySelector('.bg-purple-500'); // This selects the Generate Test Cases button
+            const responseArea = document.getElementById('responseArea1');
         
-            generateButton.addEventListener('click', function() {
-                const inputText = inputArea.value;
-                fetch('http://localhost:8000/generatecode/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `input_text=${encodeURIComponent(inputText)}`
+            testCasesButton.addEventListener('click', function() {
+                fetch('http://localhost:8000/generatetestcases/', {
+                    method: 'GET'
                 })
-                .then(response => response.text())  // Use .text() as the response is now HTML
+                .then(response => response.text())
                 .then(html => {
-                    responseArea.innerHTML = html;  // Inject the HTML into the response area
+                    responseArea.innerHTML = html;
+                    hljs.highlightAll();
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    responseArea.innerHTML = `<pre class="mb-2"><code>Error: Failed to generate code.</code></pre>`;
+                    responseArea.innerHTML = `<pre class="mb-2"><code>Error: Failed to generate test cases.</code></pre>`;
                 });
             });
         });

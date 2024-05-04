@@ -1,9 +1,17 @@
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+api = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(
+  api_key=api,
+)
 
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Adjust this in production
@@ -12,19 +20,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+system_prompt = f"""You are a software developer that writes code in python, Javascript and Ruby."""
 
-from openai import OpenAI
-import os
-from dotenv import load_dotenv
-load_dotenv()
+# Return the reponse in json formt which has following keys-
+#     language : programatic language of genegrated code
+#     Gnerated_code : the generated code itself
+#3. first line should only idicate the languae of generated code.
 
-api = os.environ.get("OPENAI_API_KEY")
-client = OpenAI(
-  api_key=api,
-)
+generate_wrap = f"""Generate the code response based on the below question.
+By default, if the language of the question is not mentioned, you assume it is Python.
+The generated code must follow following guidelines -
+1. if the language of the question is not mentioned, you assume it is Python.
+2. Only respond with code as plain text without code block syntax around it.
+3. Do not include " ```python ``` " around the generated response.
+4. Do not provide any additional information after the end of the generated function.
+5. Explain the working of the code as a docstring after first line of function name.
+6. do not include running guidelines, testcases and example usage of the function unless explicity specified.
 
-system_prompt = f"You are a software developer that writes code in python, Javascript and Ruby.\n" + f"By default if language of question is not mentioned you assume it is python.\n" +f"you provide only code as a output, and expain the working inside the function as doc string."
-
+Question -  
+"""
 
 @app.post("/generatecode/", response_class=HTMLResponse)
 async def generate_code(input_text: str = Form(...)):
@@ -32,35 +46,14 @@ async def generate_code(input_text: str = Form(...)):
     model="gpt-3.5-turbo",
     messages=[
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": input_text}
+        {"role": "user", "content": generate_wrap + input_text}
             ]
         )
-
-    # "write a programm to factorize anumber into prime numbers."
+    op = completion.choices[0].message.content
     
-    # Assuming input_text is Python code, we wrap it in HTML tags for syntax highlighting
-    code_html = f"<pre class='mb-2'><code class='python'>{completion.choices[0].message.content}</code></pre>"
+    print("LLM generated response  ")
+    print(op)
+    print("-"*30)
+    print()        
+    code_html = f"<pre class='mb-2'><code class='python'>{op}</code></pre>"
     return code_html
-
-
-# from fastapi import FastAPI, Form
-# from fastapi.responses import JSONResponse
-
-# app = FastAPI()
-# from fastapi.middleware.cors import CORSMiddleware
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],  # Adjust this in production
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-# # <<Implement your APIs here>>
-# @app.post("/generatecode/")
-# async def generate_code(input_text: str = Form(...)):
-#     # Process the input_text here (for demonstration, we just echo it)
-#     op = f"""{input_text} is generated"""
-#     processed_text = f"Processed: {op} "
-#     print(processed_text)
-#     return JSONResponse(content={"result": processed_text})

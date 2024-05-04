@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+backup
 
 test-cohere.py
 fastapi-streaming.py
