@@ -15,7 +15,7 @@ import subprocess
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-llm = OpenAI(api_key=OPENAI_API_KEY, max_tokens=2000,temperature=0)
+llm = OpenAI(api_key=OPENAI_API_KEY, max_tokens=1000,temperature=0)
 
 SAVE_PATH = "./logs/converstaions/"
 SESSION_PATH = "./logs/current_conversation.json"
