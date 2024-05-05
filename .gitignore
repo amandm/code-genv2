@@ -6,6 +6,7 @@ __pycache__/
 backup/
 test-cohere.py
 fastapi-streaming.py
+./assignment.md
 
 
 # C extensions

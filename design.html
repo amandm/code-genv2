@@ -51,8 +51,7 @@
                 Generate Code
             </button>
             <div id="responseArea" class="p-4 bg-gray-100 text-gray-800 rounded">
-                <pre class="mb-2"><code class="python">def is_even(n):
-                return n % 2 == 0</code></pre>
+                <pre class="mb-2"><code class="python"> Generated code will appear here</code></pre>
             </div>
             <!-- <div id="responseArea" class="p-4 bg-gray-100 text-gray-800 rounded"></div> -->
             <!-- Simple Code Highlighter Placeholder for Python -->
@@ -75,8 +74,7 @@
 
             <!-- Simple Code Highlighter Placeholder for Test Cases -->
             <div id="responseArea1" class="p-4 bg-gray-100 text-gray-800 rounded">
-                <pre class="mb-2"><code class="python">assert is_even(8) == True
-                    assert is_even(3) == False</code></pre>
+                <pre class="mb-2"><code class="python">test cases will appear here.</code></pre>
             </div>
             
 
@@ -87,11 +85,11 @@
                     Improve Tests
                 </button>
             </div>
-            <button class="w-full bg-teal-500 text-white px-4 py-2 rounded mb-4">
+            <button class="run-test-code w-full bg-teal-500 text-white px-4 py-2 rounded mb-4">
                 Run Test Code
             </button>
-            <div class="bg-green-300 p-4 rounded mb-4">
-                Code Executed Successfully
+            <div id="responseArea2" class="bg-green-300 p-4 rounded mb-4">
+                Test results will apear here
             </div>
             <button class="w-full bg-gray-500 text-white px-4 py-2 rounded mb-4" disabled>
                 Regenerate (Enabled when failed; Send failed feedback to Regenerate)
@@ -171,6 +169,26 @@
                 .catch(error => {
                     console.error('Error:', error);
                     responseArea.innerHTML = `<pre class="mb-2"><code>Error: Failed to generate test cases.</code></pre>`;
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const testCasesButton = document.querySelector('.run-test-code'); // This selects the run Test Cases button
+            const responseArea = document.getElementById('responseArea2');
+        
+            testCasesButton.addEventListener('click', function() {
+                fetch('http://localhost:8000/runtestcases/', {
+                    method: 'GET'
+                })
+                .then(response => response.text())
+                .then(html => {
+                    responseArea.innerHTML = html;
+                    hljs.highlightAll();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    responseArea.innerHTML = `<pre class="mb-2"><code>Error: Failed to run test cases.</code></pre>`;
                 });
             });
         });
