@@ -7,7 +7,10 @@ backup/
 test-cohere.py
 fastapi-streaming.py
 ./assignment.md
-
+venv
+logs
+app
+.env
 
 # C extensions
 *.so
